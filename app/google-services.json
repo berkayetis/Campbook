@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "616846581930",
+    "project_id": "campbook-8d221",
+    "storage_bucket": "campbook-8d221.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616846581930:android:1e71a1c75e8215a2aaf0d3",
+        "android_client_info": {
+          "package_name": "com.berkayyetis.CampBook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "616846581930-lki5gofck2cd191m3vtt5i1b64o9eftn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU_62aVgRbQfthXl-a9-fsUvkDG_fUOEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "616846581930-lki5gofck2cd191m3vtt5i1b64o9eftn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
