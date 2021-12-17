@@ -8,11 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,9 +28,9 @@ import java.util.ArrayList;
 public class EquipmentListActivity extends AppCompatActivity {
     ActivityEquipmentListBinding binding;
     ArrayList<String> equipmentList;
-    Boolean firstIn=false;
     EquipmentAdapter equipmentAdapter;
     PageViewModel pageViewModel;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,28 +41,37 @@ public class EquipmentListActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         binding = ActivityEquipmentListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         equipmentList = new ArrayList<String>();
-        equipmentList.add("Cadir");
-        getData();
-        pageViewModel= new ViewModelProvider(this).get(PageViewModel.class);
-        pageViewModel.getVal().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer s) {
-                firstIn = true;
-                getData();
-            }
-        });
         //binding.recyclerview2.setLayoutManager(new LinearLayoutManager(this));
-        binding.equipmentRecycler.setLayoutManager(new GridLayoutManager(this,2));
+        binding.equipmentRecycler.setLayoutManager(new LinearLayoutManager(this));
         equipmentAdapter = new EquipmentAdapter(equipmentList);
         binding.equipmentRecycler.setAdapter(equipmentAdapter);
+        getData();
 
         binding.refleshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 getData();
                 binding.refleshLayout.setRefreshing(false);
+            }
+        });
+
+        pageViewModel= new ViewModelProvider(this).get(PageViewModel.class);
+        pageViewModel.getVal().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer s) {
+                final LoadingBar loadingBar = new LoadingBar(EquipmentListActivity.this);
+                loadingBar.showDialog();
+                handler = new Handler();
+                final Runnable r = new Runnable() {
+                    public void run() {
+                        getData();
+                        loadingBar.dissmissbar();
+                        equipmentAdapter.notifyDataSetChanged();
+                    }
+                };
+                handler.postDelayed(r, 1000);
+
             }
         });
     }
@@ -79,10 +90,6 @@ public class EquipmentListActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(firstIn){
-            equipmentAdapter.setList(equipmentList);
-            equipmentAdapter.notifyDataSetChanged();
-        }
     }
 
     @Override
@@ -98,6 +105,11 @@ public class EquipmentListActivity extends AppCompatActivity {
             Toast.makeText(this, "add_art_item", Toast.LENGTH_SHORT).show();
             EquipmentFragment equipmentFragment = new EquipmentFragment();
             equipmentFragment.show(getSupportFragmentManager(),"EquipmentFragment");
+        }
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

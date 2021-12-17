@@ -5,7 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -47,5 +47,14 @@ public class registerActivity extends AppCompatActivity {
                     Toast.makeText(registerActivity.this,"register unsuccess",Toast.LENGTH_LONG).show();
             }
         });
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
