@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 
 import com.berkayyetis.CampBook.databinding.ActivityDetailsBinding;
@@ -39,7 +40,7 @@ public class DetailsActivity extends AppCompatActivity{
     static Integer artId;
     String info;
     PageViewModel pageViewModel;
-
+    String lati;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +63,6 @@ public class DetailsActivity extends AppCompatActivity{
             binding.painterNameText.setText("");
             binding.yearText.setText("");
             binding.button.setVisibility(View.VISIBLE);
-
         } else {
             artId = intent.getIntExtra("artId",1);
             binding.button.setVisibility(View.INVISIBLE);
@@ -74,11 +74,12 @@ public class DetailsActivity extends AppCompatActivity{
                 int artNameIx = cursor.getColumnIndex("campname");
                 int painterNameIx = cursor.getColumnIndex("date");
                 int yearIx = cursor.getColumnIndex("day");
-
+                int latiIx = cursor.getColumnIndex("latitude");
                 while (cursor.moveToNext()) {
                     binding.artNameText.setText(cursor.getString(artNameIx));
                     binding.painterNameText.setText(cursor.getString(painterNameIx));
                     binding.yearText.setText(cursor.getString(yearIx));
+                    lati =cursor.getString(latiIx);
                     setTitle(cursor.getString(artNameIx));
                 }
 
@@ -117,8 +118,7 @@ public class DetailsActivity extends AppCompatActivity{
                     }
                 });
     }
-
-    public void save(View view) {
+    public void dbSave(){
         String artName = binding.artNameText.getText().toString();
         String painterName = binding.painterNameText.getText().toString();
         String year = binding.yearText.getText().toString();
@@ -131,7 +131,6 @@ public class DetailsActivity extends AppCompatActivity{
             sqLiteStatement.bindString(2,painterName);
             sqLiteStatement.bindString(3,year);
             sqLiteStatement.execute();
-
         } catch (Exception e) {
 
         }
@@ -140,7 +139,15 @@ public class DetailsActivity extends AppCompatActivity{
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 
-        //finish();
+
+    }
+    public void save(View view) {
+        if(!binding.artNameText.getText().toString().equals("")) {
+            dbSave();
+        }
+        else{
+            Toast.makeText(this, "Kamp adi bos gecilemez.", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -222,9 +229,19 @@ public class DetailsActivity extends AppCompatActivity{
     }
 
     public void mapClicked(View view){
-        Intent intent = new Intent(this,MapsActivity.class);
-        intent.putExtra("info",info);
-        startActivity(intent);
+       if(!binding.artNameText.getText().toString().equals("")){
+           Intent intent = new Intent(this,MapsActivity.class);
+           if(lati == null){
+               intent.putExtra("info","nullupdate");
+           }
+           else{
+               intent.putExtra("info",info);
+           }
+           startActivity(intent);
+       }
+       else{
+           Toast.makeText(this, "Kamp adi bos gecilemez.", Toast.LENGTH_SHORT).show();
+       }
     }
 
     @Override

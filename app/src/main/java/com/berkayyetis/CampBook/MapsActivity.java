@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -46,6 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences sharedPreferences;
     boolean trackBoolean;
     SQLiteDatabase database;
+    String info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.setOnMapLongClickListener(this);
         Intent intent = getIntent();
-        String info = intent.getStringExtra("info");
+       info = intent.getStringExtra("info");
 
         if (info.equals("new")) {
 
@@ -124,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.setMyLocationEnabled(true);
 
             }
-        } else {
+        } else if(info.equals("old")){
             //Sqlite data && intent data
             mMap.clear();
             /*placeFromMain = (Place) intent.getSerializableExtra("place");
@@ -153,6 +155,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
 
+        }
+
+        else{
+
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(@NonNull Location location) {
+                    trackBoolean = sharedPreferences.getBoolean("trackBoolean",false);
+
+                    if(!trackBoolean) {
+                        LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+                        sharedPreferences.edit().putBoolean("trackBoolean",true).apply();
+                    }
+                }
+            };
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //request permission
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    Snackbar.make(binding.getRoot(),"Permission needed for gallery", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                        }
+                    }).show();
+
+                } else {
+                    permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+
+                }
+
+            } else {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+
+                Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastLocation != null) {
+                    LatLng lastUserLocation = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation,15));
+                }
+
+                mMap.setMyLocationEnabled(true);
+
+            }
         }
 }
 
@@ -194,27 +241,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     public void saveClicked(View view){
+        if (info.equals("new")) {
+            try {
+                database = this.openOrCreateDatabase("CampDatabase", MODE_PRIVATE, null);
+                database.execSQL("CREATE TABLE IF NOT EXISTS camps (id INTEGER PRIMARY KEY,campname VARCHAR, date VARCHAR, day VARCHAR, latitude VARCHAR, longitude VARCHAR)");
+                String sqlString = "INSERT INTO camps (latitude, longitude,campname) VALUES (?, ?,?)";
+                SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+                sqLiteStatement.bindString(1, String.valueOf(selectedLatitude));
+                sqLiteStatement.bindString(2, String.valueOf(selectedLongitude));
+                sqLiteStatement.bindString(3, "Bilinmiyor");
+                sqLiteStatement.execute();
 
-        try {
+                Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+                intent.putExtra("info","old");
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            } catch (Exception e) {
 
-            database = this.openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
+            }
 
-            ContentValues cv = new ContentValues();
-            cv.put("latitude",selectedLatitude);
-            cv.put("longitude",selectedLongitude);
+        }
+        else {
+            try {
 
-            database.update("camps",cv, "id=?", new String[]{artId.toString()});
-            Intent intent = new Intent(MapsActivity.this,MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+                database = this.openOrCreateDatabase("CampDatabase", MODE_PRIVATE, null);
+
+                ContentValues cv = new ContentValues();
+                cv.put("latitude", selectedLatitude);
+                cv.put("longitude", selectedLongitude);
+
+                database.update("camps", cv, "id=?", new String[]{artId.toString()});
+                Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
 
 
-        } catch (Exception e) {
+            } catch (Exception e) {
+
+            }
 
         }
 
-        Intent intent = new Intent(MapsActivity.this,MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
     }
 }
