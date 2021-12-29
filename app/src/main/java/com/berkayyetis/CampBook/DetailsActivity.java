@@ -129,6 +129,7 @@ public class DetailsActivity extends AppCompatActivity{
         try {
             database = this.openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
             database.execSQL("CREATE TABLE IF NOT EXISTS camps (id INTEGER PRIMARY KEY,campname VARCHAR, date VARCHAR, day VARCHAR, latitude VARCHAR, longitude VARCHAR)");
+            database.execSQL("CREATE TABLE IF NOT EXISTS equipments (id INTEGER PRIMARY KEY,equipmentname VARCHAR,campsId INTEGER,FOREIGN KEY(campsId) REFERENCES camps(id))");
             String sqlString = "INSERT INTO camps (campname, date, day) VALUES (?, ?, ?)";
             SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
             sqLiteStatement.bindString(1,artName);

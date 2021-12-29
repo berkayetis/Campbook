@@ -103,11 +103,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //request permission
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    Snackbar.make(binding.getRoot(),"Permission needed for gallery", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Snackbar.make(binding.getRoot(),"Permission needed for location", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
                         }
                     }).show();
 
@@ -177,11 +177,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //request permission
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    Snackbar.make(binding.getRoot(),"Permission needed for gallery", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Snackbar.make(binding.getRoot(),"Permission needed for location", Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
                         }
                     }).show();
 

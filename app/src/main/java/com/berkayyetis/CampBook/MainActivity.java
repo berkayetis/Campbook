@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.Manifest;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 
 import com.berkayyetis.CampBook.databinding.ActivityMainBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
@@ -97,12 +99,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.add_art_item) {
-            SQLiteDatabase database = this.openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
-            database.execSQL("DELETE FROM camps");
-            database.execSQL("DELETE FROM equipments");
-            artList.clear();
-            artAdapter.notifyDataSetChanged();
-            Toast.makeText(this, "Deleted All", Toast.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(),"Hepsini silmek istediğinize emin misiniz?", Snackbar.LENGTH_INDEFINITE).setAction("EVET", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(artList.isEmpty()){
+                        Toast.makeText(getApplicationContext(), "Silinecek bir şey yok", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        SQLiteDatabase database =v.getContext().openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
+                        database.execSQL("DELETE FROM camps");
+                        database.execSQL("DELETE FROM equipments");
+                        artList.clear();
+                        artAdapter.notifyDataSetChanged();
+                    }
+                }
+            }).show();
+
         }
         return super.onOptionsItemSelected(item);
     }
