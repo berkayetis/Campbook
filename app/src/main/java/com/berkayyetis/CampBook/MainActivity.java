@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     ArrayList<Art> artList;
     ArtAdapter artAdapter;
+    static int campId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.add_art_item) {
             SQLiteDatabase database = this.openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
             database.execSQL("DELETE FROM camps");
+            database.execSQL("DELETE FROM equipments");
             artList.clear();
             artAdapter.notifyDataSetChanged();
             Toast.makeText(this, "Deleted All", Toast.LENGTH_SHORT).show();

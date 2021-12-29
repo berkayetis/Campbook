@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -40,7 +42,7 @@ public class DetailsActivity extends AppCompatActivity{
     static Integer artId;
     String info;
     PageViewModel pageViewModel;
-    String lati;
+    String lati,longi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +77,13 @@ public class DetailsActivity extends AppCompatActivity{
                 int painterNameIx = cursor.getColumnIndex("date");
                 int yearIx = cursor.getColumnIndex("day");
                 int latiIx = cursor.getColumnIndex("latitude");
+                int longiIx = cursor.getColumnIndex("longitude");
                 while (cursor.moveToNext()) {
                     binding.artNameText.setText(cursor.getString(artNameIx));
                     binding.painterNameText.setText(cursor.getString(painterNameIx));
                     binding.yearText.setText(cursor.getString(yearIx));
                     lati =cursor.getString(latiIx);
+                    longi =cursor.getString(longiIx);
                     setTitle(cursor.getString(artNameIx));
                 }
 
@@ -162,7 +166,7 @@ public class DetailsActivity extends AppCompatActivity{
         alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                // add these two lines, if you wish to close the app:
+                dialogInterface.dismiss();
             }
         });
         alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -171,8 +175,8 @@ public class DetailsActivity extends AppCompatActivity{
                 String artName = binding.artNameText.getText().toString();
                 String painterName = binding.painterNameText.getText().toString();
                 String year = binding.yearText.getText().toString();
-                database.delete("camps", "campname=?", new String[]{artName});
-
+                database.delete("camps", "id=?", new String[]{artId.toString()});
+                database.delete("equipments", "campsId=?", new String[]{artId.toString()});
                 Intent intent = new Intent(DetailsActivity.this,MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -244,12 +248,34 @@ public class DetailsActivity extends AppCompatActivity{
        }
     }
 
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.map_share, menu);
+
+        // first parameter is the file for icon and second one is menu
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // We are using switch case because multiple icons can be kept
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
+            case R.id.shareButton:
+
+                String uri = "http://maps.google.com/maps?saddr=" +lati+","+longi;
+
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                String ShareSub = "Here is my location";
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, ShareSub);
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, uri);
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

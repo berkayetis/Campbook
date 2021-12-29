@@ -5,4 +5,7 @@
     <item
         android:id="@+id/add_equipment_item"
         android:title="Ekipman Ekle" />
+    <item
+        android:id="@+id/reset_allequipment_item"
+        android:title="Tüm ekipmanları sil" />
 </menu>

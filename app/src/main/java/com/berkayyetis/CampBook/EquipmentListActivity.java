@@ -106,10 +106,17 @@ public class EquipmentListActivity extends AppCompatActivity {
             EquipmentFragment equipmentFragment = new EquipmentFragment();
             equipmentFragment.show(getSupportFragmentManager(),"EquipmentFragment");
         }
+
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
+            case R.id.reset_allequipment_item:
+                SQLiteDatabase database = this.openOrCreateDatabase("CampDatabase",MODE_PRIVATE,null);
+                database.delete("equipments", "campsId=?", new String[]{artId.toString()});
+                equipmentList.clear();
+                equipmentAdapter.notifyDataSetChanged();
+                Toast.makeText(this, "Deleted All Equipments", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }

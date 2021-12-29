@@ -50,7 +50,6 @@ public class EquipmentFragment extends DialogFragment {
             public void onClick(View v) {
                 count++;
                 pageViewModel.setNewValue(count);
-                System.out.println("bbb"+count);
                 saveEquipment();
             }
         });
